@@ -1,4 +1,3 @@
-import secrets
 from json import load
 from os.path import exists
 
@@ -12,21 +11,24 @@ class Principal(BaseModel):
     metadata: dict
 
 
-def create_principal(path) -> Principal:
-    principal = Principal(id=secrets.token_hex(16), metadata="{}")
+def load_contributor_principal(path: str, principal: Principal) -> Principal:
+    if exists(path):
+        return load_principal(path)
+
+    principal = Principal(id=principal.id, metadata={})
     save_principal(path, principal)
     return principal
 
 
-def save_principal(path, principal):
+def save_principal(path, principal, force=False):
+    if (not force) and exists(path):
+        return
+
     with open(path, "w", encoding=ENCODING) as file:
         file.write(principal.json())
 
 
 def load_principal(path: str) -> Principal:
-    if not exists(path):
-        return create_principal(path)
-
     # TODO: principal should be encrypted
     with open(path, "r", encoding=ENCODING) as file:
         return Principal(**load(file))
@@ -35,6 +37,8 @@ def load_principal(path: str) -> Principal:
 def update_metadata(path: str, metadata: dict):
     principal = load_principal(path)
     principal.metadata.update(metadata)
+
     principal = Principal(id=principal.id, metadata=principal.metadata)
-    save_principal(path, principal)
+    save_principal(path, principal, force=True)
+
     return principal

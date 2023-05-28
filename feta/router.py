@@ -12,10 +12,7 @@ def _get_config():
         raise HTTPException(status_code=404, detail=str(e))
 
 
-router = APIRouter(
-    prefix="",
-    responses={404: {"detail": "Not found"}}
-)
+router = APIRouter()
 
 
 def make_router(principal, principal_name, route_name):
