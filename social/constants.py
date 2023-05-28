@@ -1,0 +1,2 @@
+PRINCIPAL = "7a4038ed6d5ad5eb"
+PRINCIPAL_NAME = "Social"
