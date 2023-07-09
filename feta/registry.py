@@ -1,8 +1,17 @@
+import requests
+
+
 class Registry:
-    @staticmethod
-    def auth(principal: str, public_key: str) -> str:
+    def __init__(self, registry_url):
+        self.__url = registry_url
+        self.__token = None
+
+    def auth(self, principal: str, public_key: str) -> str:
+        response = requests.post(f"{self.__url}/principal/host/", json={"principal": principal})
+        print(response.content)
+        self.__token = ""
         return ""
 
-    @staticmethod
-    def sign_on(token: str, principal: str) -> str:
+    def sign_on(self, token: str, principal: str) -> str:
+        requests.post(self.__url, )
         return ""

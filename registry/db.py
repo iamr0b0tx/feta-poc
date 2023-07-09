@@ -1,6 +1,9 @@
+import hashlib
 from random import choices
 
 from storage.storage import Storage
+
+ENCODING = "utf-8"
 
 
 def host_is_valid(host):
@@ -8,27 +11,52 @@ def host_is_valid(host):
     return host
 
 
+class InvalidPublicKey(Exception):
+    def __init__(self, message="The public key provided is not consistent with what was initially registered!"):
+        super().__init__(message)
+
+
 class DB:
     HOSTS_KEY = "hosts"
-    PRINCIPAL_PREFIX = "principal:"
+    PRINCIPAL_HOST_PREFIX = "principal:host:"
+    PRINCIPAL_PUBLIC_KEY_PREFIX = "principal:public_key:"
 
     def __init__(self, store: Storage):
         self.__store = store
 
-    def __get_principal_key(self, principal: str):
-        return f"{self.PRINCIPAL_PREFIX}{principal}"
+    @staticmethod
+    def __get_key(prefix: str, principal: str):
+        return f"{prefix}{principal}"
+
+    def __get_principal_host_key(self, principal: str):
+        return self.__get_key(self.PRINCIPAL_HOST_PREFIX, principal)
+
+    def __get_principal_public_key_key(self, principal: str):
+        return self.__get_key(self.PRINCIPAL_PUBLIC_KEY_PREFIX, principal)
+
+    def sync_principal_public_key(self, principal: str, public_key: str):
+        # todo: create a way to rotate the key pairs
+        key = self.__get_principal_public_key_key(principal)
+        hashed_public_key = self.__store.get(key)
+        new_hashed_public_key = hashlib.new('sha256', public_key.encode(ENCODING)).hexdigest()
+        if hashed_public_key is None:
+            self.__store.set(key, new_hashed_public_key)
+            return
+
+        if hashed_public_key != new_hashed_public_key:
+            raise InvalidPublicKey()
 
     def get_host(self, principal: str) -> str:
         # TODO: check if exists, if true verify ownership of principal if not then tell principal has been used
-        principal_key = self.__get_principal_key(principal)
+        principal_host_key = self.__get_principal_host_key(principal)
 
-        current_host = self.__store.get(principal_key)
+        current_host = self.__store.get(principal_host_key)
         if host_is_valid(current_host):
             return current_host
 
         # todo: gather list of close hosts and select random one
         host = choices(self.__get_hosts())[0]
-        self.__store.set(principal_key, host)
+        self.__store.set(principal_host_key, host)
         return host
 
     def register_host(self, host):
