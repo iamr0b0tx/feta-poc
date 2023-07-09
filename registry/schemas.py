@@ -3,6 +3,7 @@ from pydantic import BaseModel
 
 class Token(BaseModel):
     token: str
+    public_key: str
 
 
 class Host(BaseModel):

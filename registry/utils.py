@@ -1,10 +1,15 @@
+from base64 import b64decode
 from dataclasses import dataclass
 from datetime import datetime, timezone, timedelta
 
 import jwt
-from cryptography.hazmat.primitives import serialization as crypto_serialization
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import serialization as crypto_serialization, serialization, hashes
 from cryptography.hazmat.primitives.asymmetric import ec
 from cryptography.hazmat.primitives.asymmetric.ec import EllipticCurvePublicKey, EllipticCurvePrivateKey
+from cryptography.hazmat.primitives.kdf.hkdf import HKDF
+
+JWT_ALGORITHM = "HS256"
 
 
 def validate_host(host):
@@ -23,7 +28,7 @@ def generate_token(key, principal):
             "exp": now + timedelta(minutes=5)
         },
         key,
-        algorithm="HS256"
+        algorithm=JWT_ALGORITHM
     )
 
 
@@ -51,17 +56,30 @@ class KeyPair:
         )
 
 
-def decode_token(token, public_key):
+def decode_token(token, key):
     return jwt.decode(
         token,
-        public_key,
-        algorithms=["RS256"],
+        key,
+        algorithms=[JWT_ALGORITHM],
         options={
             "require": ["exp"],
             "verify_exp": True,
             "verify_signature": True
         }
     )
+
+
+def get_derived_key(peer_public_key, private_key):
+    peer_public_key: EllipticCurvePublicKey = serialization.load_ssh_public_key(
+        b64decode(peer_public_key),
+        backend=default_backend())
+    shared_key = private_key.exchange(ec.ECDH(), peer_public_key)
+    return HKDF(
+        algorithm=hashes.SHA256(),
+        length=32,
+        salt=None,
+        info=b'handshake data',
+    ).derive(shared_key)
 
 
 def auth():

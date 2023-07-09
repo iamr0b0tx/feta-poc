@@ -33,7 +33,7 @@ def create_peer1():
     create_config(
         {
             "principal_path": "dump/peer1/principal",
-            "registry_url": "http://127.0.0.1:9000",
+            "registry_url": "http://host.docker.internal:9000",
             "private_key": b64encode(private_key).decode("utf-8"),
             "public_key": b64encode(public_key).decode("utf-8")
         },
@@ -46,7 +46,7 @@ def create_peer2():
     create_config(
         {
             "principal_path": "dump/peer2/principal",
-            "registry_url": "http://127.0.0.1:9000",
+            "registry_url": "http://host.docker.internal:9000",
             "private_key": b64encode(private_key),
             "public_key": b64encode(public_key)
         },

@@ -43,7 +43,7 @@ class ConnectionManager:
 
     @staticmethod
     async def send_event(event: Event, websocket: WebSocket):
-        await websocket.send_text(event.json())
+        await websocket.send_json(event.json())
 
 
 manager = ConnectionManager()
@@ -60,12 +60,13 @@ async def home():
     return response
 
 
-@app.websocket("/ws/{principal}")
-async def websocket_endpoint(websocket: WebSocket, principal: int):
+@app.websocket("/ws/{principal}/")
+async def websocket_endpoint(websocket: WebSocket, principal: str):
     await manager.connect(websocket)
     try:
         while True:
-            data = await websocket.receive_json()
+            data = await websocket.receive()
+            print(data)
             event = Event(**data)
             new_event = Event(status=1, message="", data=json.dumps({"text": f"You wrote: {event}"}))
             await manager.send_event(new_event, websocket)

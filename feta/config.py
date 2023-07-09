@@ -38,7 +38,7 @@ def load_config(path) -> Config:
         private_key = b64decode(data["private_key"].encode())
         public_key = b64decode(data["public_key"].encode())
 
-        public_key = serialization.load_pem_public_key(public_key, backend=default_backend())
+        public_key = serialization.load_ssh_public_key(public_key, backend=default_backend())
         private_key = serialization.load_pem_private_key(private_key, None, backend=default_backend())
 
         data["private_key"] = private_key
