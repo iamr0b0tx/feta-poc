@@ -1,11 +1,11 @@
-from feta.blocks import Blocks
 from feta.constants import CONFIG_PATH
+from feta.context import Context
 
-_blocks = None
+_context = Context(CONFIG_PATH)
 
 
-async def get_blocks():
-    global _blocks
-    if _blocks is None:
-        _blocks = Blocks(CONFIG_PATH)
-    return _blocks
+async def get_context():
+    global _context
+    if _context is None:
+        _context = Context(CONFIG_PATH)
+    return _context

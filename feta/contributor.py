@@ -1,7 +1,7 @@
 from os import mkdir
 from os.path import join, exists
 
-from feta.blocks import Blocks
+from feta.context import Context
 from feta.principal import update_metadata, load_contributor_principal
 
 
@@ -13,16 +13,18 @@ class PrincipalNotFound(Exception):
 
 
 class Contributor:
-    def __init__(self, blocks: Blocks, contributor_principal: str):
-        self.__blocks = blocks
+    def __init__(self, context: Context, contributor_principal: str):
+        # todo: change blocks to context to hold blocks and peers
+        self.__context = context
         self.__id = self.__load_contributor(contributor_principal)
 
-        self.__principal_path = join(self.__blocks.working_dir, self.__id, "principal")
-        self.__principal = load_contributor_principal(self.__principal_path, self.__blocks.principal)
+        self.__principal_path = join(self.__context.working_dir, self.__id, "principal")
+        self.__principal = load_contributor_principal(self.__principal_path, self.__context.principal)
 
     @property
-    def blocks(self):
-        return self.__blocks
+    def context(self):
+        # todo: return only contributor related blocks
+        return self.__context
 
     @property
     def id(self):
@@ -36,7 +38,7 @@ class Contributor:
         # TODO: principal should exist in marketplace DHT
         assert contributor_principal is not None
 
-        path = join(self.__blocks.working_dir, contributor_principal)
+        path = join(self.__context.working_dir, contributor_principal)
         if not exists(path):
             mkdir(path)
 

@@ -1,2 +1,4 @@
-CONFIG_PATH = "/Users/abdulfatahadeneye/PycharmProjects/my-web/dump/config.json"
+import os
+
+CONFIG_PATH = os.environ["CONFIG_PATH"]
 ENCODING = "UTF-8"

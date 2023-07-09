@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.responses import RedirectResponse
 
 from feta.config import Config, ConfigNotFound, load_config
 from feta.constants import CONFIG_PATH
@@ -21,6 +22,12 @@ def make_router(principal, principal_name, route_name):
         tags=[f"{principal_name} / {route_name}"],
         responses={404: {"detail": "Not found"}}
     )
+
+
+@router.get("/")
+async def home():
+    response = RedirectResponse(url='/docs')
+    return response
 
 
 @router.get("/config")

@@ -1,6 +1,6 @@
 import hashlib
 from json import load
-from os.path import exists, join
+from os.path import exists
 from typing import Optional
 
 from pydantic import BaseModel
@@ -13,6 +13,10 @@ class Block(BaseModel):
     data: str
     principal: str
     contributor: str
+
+    @property
+    def key(self):
+        return get_block_key(self.id, self.contributor)
 
 
 class BlockNotFound(Exception):
@@ -32,12 +36,6 @@ def create_block(data: str, principal: str, contributor: str):
 
 def get_block_key(idx, contributor):
     return idx, contributor
-
-
-def save_block(working_dir: str, block: Block, contributor: str):
-    path = join(working_dir, contributor, block.id)
-    with open(path, "w", encoding=ENCODING) as file:
-        file.write(block.json())
 
 
 def load_block(path: str) -> Optional[Block]:

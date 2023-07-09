@@ -38,5 +38,5 @@ class UserManager:
         try:
             metadata = self.__contributor.get_metadata(principal)
             return User(**metadata)
-        except (PrincipalNotFound, ValidationError):
+        except (PrincipalNotFound, ValidationError) as e:
             raise UserNotFound(principal=principal)

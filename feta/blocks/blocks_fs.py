@@ -1,11 +1,12 @@
 from collections import OrderedDict
 from os import unlink
-from os.path import dirname, join, exists
+from os.path import join, exists, dirname
 from typing import TypeVar, Optional
 
 from feta.block import Block, create_block, save_block, load_block, get_block_key, BlockNotFound
-from feta.config import load_config
-from feta.principal import load_principal
+from feta.blocks.blocks_base import BlocksBase
+from feta.config import Config
+from feta.constants import ENCODING
 
 _KT = TypeVar("_KT")
 _VT = TypeVar("_VT")
@@ -45,19 +46,15 @@ class LRUCache:
         self.cache.pop(key)
 
 
-class Blocks:
-    def __init__(self, config_path: str):
-        config = load_config(config_path)
+class BlocksFS(BlocksBase):
+    # todo: consider using sqlite db
+    def __init__(self, config: Config):
+        super().__init__(config)
+
         self.__working_dir = dirname(config.principal_path)
 
-        self.__principal = load_principal(config.principal_path)
-
-        # blocks memory
+        # blocks cache
         self.__blocks = LRUCache(50)
-
-    @property
-    def principal(self):
-        return self.__principal
 
     @property
     def working_dir(self):
@@ -67,12 +64,13 @@ class Blocks:
         return join(self.__working_dir, contributor, idx)
 
     def create_block(self, data: str, contributor):
-        block = create_block(data=data, principal=self.__principal.id, contributor=contributor)
+        block = super().make_block(data, contributor)
 
-        # TODO: store block in blocks DHT
-        save_block(self.__working_dir, block, contributor)
+        path = join(self.__working_dir, contributor, block.id)
+        with open(path, "w", encoding=ENCODING) as file:
+            file.write(block.json())
 
-        self.__blocks.put(get_block_key(block.id, contributor), block)
+        self.__blocks.put(block.key, block)
         return block
 
     def __load_block(self, idx: str, contributor) -> Optional[Block]:

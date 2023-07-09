@@ -1,8 +1,8 @@
 from fastapi import Depends
 
-from feta.blocks import Blocks
+from feta.context import Context
 from feta.contributor import Contributor
-from feta.dependencies import get_blocks
+from feta.dependencies import get_context
 from social.constants import PRINCIPAL
 from social.managers.posts import PostManager
 from social.managers.users import UserManager
@@ -10,10 +10,10 @@ from social.managers.users import UserManager
 _contributor = None
 
 
-def get_contributor(blocks: Blocks = Depends(get_blocks)):
+def get_contributor(context: Context = Depends(get_context)):
     global _contributor
     if _contributor is None:
-        _contributor = Contributor(blocks, PRINCIPAL)
+        _contributor = Contributor(context, PRINCIPAL)
     return _contributor
 
 
