@@ -13,6 +13,8 @@ class Host(BaseModel):
 class PrincipalHost(BaseModel):
     principal: str
     public_key: str
+    host: str
+    token: str
 
 
 class Response(BaseModel):

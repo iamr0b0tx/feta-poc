@@ -13,26 +13,19 @@ from cryptography.hazmat.primitives.kdf.hkdf import HKDF
 from feta.constants import JWT_ALGORITHM
 
 
-def auth(url, principal: str, public_key: EllipticCurvePublicKey,
+def auth(url, public_key: EllipticCurvePublicKey,
          private_key: EllipticCurvePrivateKey) -> Tuple[str, str]:
-    public_key = public_key.public_bytes(
-        encoding=serialization.Encoding.OpenSSH,
-        format=serialization.PublicFormat.OpenSSH
-    )
-    public_key = b64encode(public_key).decode("utf-8")
+    response = requests.get(f"{url}/hosts/")
+    host = response.json()["data"]["host"]
 
-    response = requests.post(
-        f"{url}/principal/host/",
-        json={"principal": principal, "public_key": public_key}
-    )
+    response = requests.get(f"{host}/principal/")
+    host_public_key = response.json()["data"]["principal"]
 
-    data = response.json()["data"]
-    host = data["host"]
-
-    server_public_key: EllipticCurvePublicKey = serialization.load_ssh_public_key(
-        b64decode(data["public_key"]),
+    host_public_key: EllipticCurvePublicKey = serialization.load_ssh_public_key(
+        b64decode(host_public_key),
         backend=default_backend())
-    shared_key = private_key.exchange(ec.ECDH(), server_public_key)
+    # source: https://cryptography.io/en/latest/hazmat/primitives/asymmetric/ec/#elliptic-curve-key-exchange-algorithm
+    shared_key = private_key.exchange(ec.ECDH(), host_public_key)
     derived_key = HKDF(
         algorithm=hashes.SHA256(),
         length=32,
@@ -40,15 +33,30 @@ def auth(url, principal: str, public_key: EllipticCurvePublicKey,
         info=b'handshake data',
     ).derive(shared_key)
 
+    public_key = public_key.public_bytes(
+        encoding=serialization.Encoding.OpenSSH,
+        format=serialization.PublicFormat.OpenSSH
+    )
+    public_key = b64encode(public_key).decode("utf-8")
     now = datetime.now(tz=timezone.utc)
     token = jwt.encode(
         {
-            "principal": principal,
+            "public_key": public_key,
             "iat": now,
             "exp": now + timedelta(minutes=5)
         },
         derived_key,
         algorithm=JWT_ALGORITHM
     )
+
+    response = requests.post(
+        f"{host}/auth/",
+        json={
+            "token": token,
+            "principal": public_key
+        }
+    )
+    token = response.json()["data"]["token"]
+    host = f"{host}/ws"
 
     return host, token

@@ -28,27 +28,46 @@ def create_config(config, path):
         json.dump(config, f)
 
 
+def create_principal(principal, path):
+    print(principal)
+    with open(path, 'w') as f:
+        json.dump(principal, f)
+
+
 def create_peer1():
     private_key, public_key = generate_key_pair()
+    public_key = b64encode(public_key).decode("utf-8")
+    principal_path = "dump/peer1/principal"
     create_config(
         {
-            "principal_path": "dump/peer1/principal",
+            "principal_path": principal_path,
             "registry_url": "http://host.docker.internal:9000",
             "private_key": b64encode(private_key).decode("utf-8"),
-            "public_key": b64encode(public_key).decode("utf-8")
+            "public_key": public_key
         },
         "dump/peer1/config.json"
+    )
+    create_principal(
+        {"id": public_key, "metadata": {"name": "peer1"}},
+        principal_path
     )
 
 
 def create_peer2():
     private_key, public_key = generate_key_pair()
+    public_key = b64encode(public_key).decode("utf-8")
+    principal_path = "dump/peer2/principal"
+
     create_config(
         {
-            "principal_path": "dump/peer2/principal",
+            "principal_path": principal_path,
             "registry_url": "http://host.docker.internal:9000",
-            "private_key": b64encode(private_key),
-            "public_key": b64encode(public_key)
+            "private_key": b64encode(private_key).decode("utf-8"),
+            "public_key": public_key
         },
         "dump/peer2/config.json"
+    )
+    create_principal(
+        {"id": public_key, "metadata": {"name": "peer2"}},
+        principal_path
     )

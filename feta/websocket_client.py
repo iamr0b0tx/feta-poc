@@ -17,18 +17,18 @@ logging.root.setLevel(logging.NOTSET)
 
 # the principal registry
 config = load_config(CONFIG_PATH)
-WS_PROTOCOL = "ws" if config.registry_url.startswith("http") else "wss"
 
 
 async def connect_to_host():
     # todo: auth with dht that you own principal
-    host, token = auth(config.registry_url, _context.principal.id, config.public_key, config.private_key)
-    headers = {}
-    # headers = {"Authorization": f"Bearer {token}"}
+    host, token = auth(config.registry_url, config.public_key, config.private_key)
+    ws_host = host.replace("http", "ws", 1)
+    # headers = {}
+    headers = {"Authorization": f"Bearer {token}"}
 
-    host_url = f"{WS_PROTOCOL}://{host}/{_context.principal.id}/"
+    host_url = f"{ws_host}/{_context.principal.id}/"
     logger.debug(f"Connecting to: '{host_url}'")
-    async with websockets.connect(host_url) as websocket:
+    async with websockets.connect(host_url, extra_headers=headers) as websocket:
         await websocket.send('{"d": "Hello world!"}')
 
         try:
