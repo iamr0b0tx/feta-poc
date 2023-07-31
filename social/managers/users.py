@@ -1,6 +1,6 @@
 from pydantic import BaseModel, ValidationError
 
-from feta.contributor import Contributor, PrincipalNotFound
+from contributor import Contributor, PrincipalNotFound
 
 
 class User(BaseModel):

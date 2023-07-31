@@ -1,10 +1,10 @@
 from os.path import dirname
 
-from feta.blocks import Blocks
-from feta.blocks.blocks_base import BlocksBase
-from feta.config import load_config
-from feta.peers import Peers
-from feta.principal import load_principal
+from blocks import Blocks
+from blocks.blocks_base import BlocksBase
+from config import load_config
+from peers import Peers
+from principal import load_principal
 
 
 class Context:

@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-from feta.router import router as main_router
+from router import router as main_router
 from social.routers import router as social_router
 
 app = FastAPI(title="Social")

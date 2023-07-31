@@ -3,10 +3,10 @@ import time
 from fastapi import Depends
 from pydantic import BaseModel
 
-from feta.blocks import Blocks
-from feta.contributor import Contributor
-from feta.dependencies import get_blocks
-from feta.router import make_router
+from blocks import Blocks
+from contributor import Contributor
+from dependencies import get_blocks
+from router import make_router
 
 
 class Note(BaseModel):

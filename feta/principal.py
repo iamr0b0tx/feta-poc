@@ -3,7 +3,7 @@ from os.path import exists
 
 from pydantic import BaseModel
 
-from feta.constants import ENCODING
+from constants import ENCODING
 
 
 class Principal(BaseModel):

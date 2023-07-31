@@ -1,8 +1,8 @@
 from os import mkdir
 from os.path import join, exists
 
-from feta.context import Context
-from feta.principal import update_metadata, load_contributor_principal
+from context import Context
+from principal import update_metadata, load_contributor_principal
 
 
 class PrincipalNotFound(Exception):

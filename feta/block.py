@@ -1,11 +1,8 @@
 import hashlib
-from json import load
-from os.path import exists
-from typing import Optional
 
 from pydantic import BaseModel
 
-from feta.constants import ENCODING
+from constants import ENCODING
 
 
 class Block(BaseModel):
@@ -36,11 +33,3 @@ def create_block(data: str, principal: str, contributor: str):
 
 def get_block_key(idx, contributor):
     return idx, contributor
-
-
-def load_block(path: str) -> Optional[Block]:
-    if not exists(path):
-        return
-
-    with open(path, "r", encoding=ENCODING) as file:
-        return Block(**load(file))

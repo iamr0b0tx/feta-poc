@@ -2,7 +2,7 @@ import time
 
 from pydantic import BaseModel
 
-from feta.contributor import Contributor
+from contributor import Contributor
 
 
 class Post(BaseModel):

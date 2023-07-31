@@ -1,8 +1,8 @@
 from abc import abstractmethod
 
-from feta.block import Block, create_block, get_block_key
-from feta.config import Config
-from feta.principal import load_principal
+from block import Block, create_block, get_block_key
+from config import Config
+from principal import load_principal
 
 
 class BlocksBase:

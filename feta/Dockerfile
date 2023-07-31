@@ -3,7 +3,7 @@ MAINTAINER iamr0b0tx
 
 RUN apt-get -y update; apt-get -y install curl
 
-COPY host/entrypoint.sh /entrypoint.sh
+COPY ./entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
 WORKDIR /app

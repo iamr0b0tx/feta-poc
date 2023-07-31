@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-from feta.router import router as main_router
+from router import router as main_router
 from notes.router import router as notes_router
 
 app = FastAPI()

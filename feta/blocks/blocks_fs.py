@@ -1,15 +1,24 @@
 from collections import OrderedDict
+from json import load
 from os import unlink
 from os.path import join, exists, dirname
 from typing import TypeVar, Optional
 
-from feta.block import Block, create_block, save_block, load_block, get_block_key, BlockNotFound
-from feta.blocks.blocks_base import BlocksBase
-from feta.config import Config
-from feta.constants import ENCODING
+from block import Block, get_block_key, BlockNotFound
+from blocks.blocks_base import BlocksBase
+from config import Config
+from constants import ENCODING
 
 _KT = TypeVar("_KT")
 _VT = TypeVar("_VT")
+
+
+def load_block(path: str) -> Optional[Block]:
+    if not exists(path):
+        return
+
+    with open(path, "r", encoding=ENCODING) as file:
+        return Block(**load(file))
 
 
 class LRUCache:

@@ -1,6 +1,6 @@
 from fastapi import Depends, HTTPException
 
-from feta.router import make_router
+from router import make_router
 from social.constants import PRINCIPAL, PRINCIPAL_NAME
 from social.dependencies import get_user_manager
 from social.managers.users import UserManager, UserNotFound

@@ -12,7 +12,6 @@ class Response(BaseModel):
     message: str
 
 
-class Event(BaseModel):
-    status: int
-    data: str
-    message: str
+class WebSocketRequest(BaseModel):
+    endpoint: str
+    body: dict

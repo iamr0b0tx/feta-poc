@@ -1,3 +1,6 @@
+import hashlib
+import secrets
+from base64 import b64encode
 from dataclasses import dataclass
 from datetime import datetime, timezone, timedelta
 
@@ -38,6 +41,9 @@ class KeyPair:
             crypto_serialization.PublicFormat.OpenSSH
         )
 
+    def get_public_key_b64(self):
+        return b64encode(self.get_public_key())
+
     @classmethod
     def generate_key_pair(cls) -> 'KeyPair':
         private_key = ec.generate_private_key(ec.SECP384R1())
@@ -46,6 +52,16 @@ class KeyPair:
             public_key=private_key.public_key(),
             iat=datetime.now(tz=timezone.utc)
         )
+
+    def get_private_key_hash(self):
+        return hashlib.new(
+            'sha256',
+            self.private_key.private_bytes(
+                encoding=serialization.Encoding.PEM,
+                format=serialization.PrivateFormat.PKCS8,
+                encryption_algorithm=serialization.NoEncryption()
+            )
+        ).hexdigest().encode("utf-8")
 
 
 def decode_token(token, key):
@@ -74,5 +90,6 @@ def get_derived_key(peer_public_key, private_key):
     ).derive(shared_key)
 
 
-def auth():
-    pass
+def make_request_id():
+    return secrets.token_hex(8)
+

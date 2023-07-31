@@ -1,6 +1,6 @@
-from feta.block import Block
-from feta.blocks.blocks_base import BlocksBase
-from feta.config import Config
+from block import Block
+from blocks.blocks_base import BlocksBase
+from config import Config
 
 
 class BlocksInMemory(BlocksBase):

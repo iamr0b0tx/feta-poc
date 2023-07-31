@@ -1,6 +1,6 @@
 from fastapi import Depends
 
-from feta.router import make_router
+from router import make_router
 from social.constants import PRINCIPAL, PRINCIPAL_NAME
 from social.dependencies import get_post_manager
 from social.managers.posts import PostManager

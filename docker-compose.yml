@@ -8,43 +8,6 @@ services:
       - ./registry/:/app
     ports:
       - "9000:9000"
-  peer1:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    volumes:
-      - ./:/app
-    environment:
-      - CONFIG_PATH=dump/peer1/config.json
-    ports:
-      - "8001:8001"
-    command: uvicorn main:app --reload --host 0.0.0.0 --port 8001
-    depends_on:
-      - host2
-  peer1_websocket_client:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    volumes:
-      - ./:/app
-    environment:
-      - CONFIG_PATH=dump/peer1/config.json
-    command: python websocket_client.py
-    depends_on:
-      - host2
-  peer2:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    volumes:
-      - ./:/app
-    environment:
-      - CONFIG_PATH=dump/peer2/config.json
-    ports:
-      - "8002:8002"
-    command: uvicorn main:app --reload --host 0.0.0.0 --port 8002
-    depends_on:
-      - host2
   host1:
     build:
       context: ./host
@@ -56,17 +19,6 @@ services:
     command: uvicorn main:app --reload --host 0.0.0.0 --port 9501
     depends_on:
       - registry
-  peer2_websocket_client:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    volumes:
-      - ./:/app
-    environment:
-      - CONFIG_PATH=dump/peer2/config.json
-    command: python websocket_client.py
-    depends_on:
-      - host2
   host2:
     build:
       context: ./host
@@ -78,3 +30,89 @@ services:
     command: uvicorn main:app --reload --host 0.0.0.0 --port 9502
     depends_on:
       - registry
+  peer1_feta:
+    build:
+      context: ./feta
+      dockerfile: Dockerfile
+    volumes:
+      - ./feta/:/app
+    environment:
+      - WORKING_DIR=dump/peer1/
+      - REGISTRY_URL=http://host.docker.internal:9000
+      - PRIVATE_KEY_FILE_PATH=dump/peer1/private
+      - PUBLIC_KEY_FILE_PATH=dump/peer1/public
+    ports:
+      - "8001:8001"
+    command: uvicorn main:app --reload --host 0.0.0.0 --port 8001
+    depends_on:
+      - host1
+      - host2
+  peer2_feta:
+    build:
+      context: ./feta
+      dockerfile: Dockerfile
+    volumes:
+      - ./feta/:/app
+    environment:
+      - WORKING_DIR=dump/peer2/
+      - REGISTRY_URL=http://host.docker.internal:9000
+      - PRIVATE_KEY_FILE_PATH=dump/peer2/private
+      - PUBLIC_KEY_FILE_PATH=dump/peer2/public
+    ports:
+      - "8002:8002"
+    command: uvicorn main:app --reload --host 0.0.0.0 --port 8002
+    depends_on:
+      - host1
+      - host2
+#  peer1:
+#    build:
+#      context: ./
+#      dockerfile: Dockerfile
+#    volumes:
+#      - ./:/app
+#    environment:
+#      - WORKING_DIR=dump/peer1/config.json
+#    ports:
+#      - "8001:8001"
+#    command: uvicorn main:app --reload --host 0.0.0.0 --port 8001
+#    depends_on:
+#      - host1
+#      - host2
+#  peer1_websocket_client:
+#    build:
+#      context: ./
+#      dockerfile: Dockerfile
+#    volumes:
+#      - ./:/app
+#    environment:
+#      - WORKING_DIR=dump/peer1/config.json
+#    command: python websocket_client.py
+#    depends_on:
+#      - host1
+#      - host2
+#  peer2:
+#    build:
+#      context: ./
+#      dockerfile: Dockerfile
+#    volumes:
+#      - ./:/app
+#    environment:
+#      - WORKING_DIR=dump/peer2/config.json
+#    ports:
+#      - "8002:8002"
+#    command: uvicorn main:app --reload --host 0.0.0.0 --port 8002
+#    depends_on:
+#      - host1
+#      - host2
+#  peer2_websocket_client:
+#    build:
+#      context: ./
+#      dockerfile: Dockerfile
+#    volumes:
+#      - ./:/app
+#    environment:
+#      - WORKING_DIR=dump/peer2/config.json
+#    command: python websocket_client.py
+#    depends_on:
+#      - host1
+#      - host2

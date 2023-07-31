@@ -1,11 +1,11 @@
 import logging
 
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, HTTPException
 from fastapi.responses import RedirectResponse
 
 from db import DB
 from schemas import Host, Response
-from storage import store
+from storage import make_storage
 from utils import validate_host
 
 logger = logging.getLogger(__name__)
@@ -14,13 +14,20 @@ logging.root.setLevel(logging.NOTSET)
 
 app = FastAPI(title="Feta Registry")
 
-
 # signing_key_pair = KeyPair.generate_key_pair()
 # encryption_key_pair = KeyPair.generate_key_pair()
 
+_store = None
+_db = None
+
 
 def get_db():
-    return DB(store)
+    global _db, _store
+    if _store is None:
+        _store = make_storage()
+    if _db is None:
+        _db = DB(_store)
+    return _db
 
 
 @app.get("/")
@@ -48,9 +55,12 @@ async def register_host(host: Host, db: DB = Depends(get_db)):
 #         raise HTTPException(status_code=400, detail="Invalid Public key")
 
 
-@app.get("/hosts/")
+@app.get("/hosts/random/")
 async def get_host(db: DB = Depends(get_db)):
-    return Response(status=1, data={"host": db.get_host()}, message="")
+    host = db.get_host()
+    if host is None:
+        raise HTTPException(status_code=404, detail="No host available at this time")
+    return Response(status=1, data={"host": host}, message="")
 
 
 # @app.post("/principals/")

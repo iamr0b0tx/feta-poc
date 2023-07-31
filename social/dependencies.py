@@ -1,8 +1,8 @@
 from fastapi import Depends
 
-from feta.context import Context
-from feta.contributor import Contributor
-from feta.dependencies import get_context
+from context import Context
+from contributor import Contributor
+from dependencies import get_context
 from social.constants import PRINCIPAL
 from social.managers.posts import PostManager
 from social.managers.users import UserManager
