@@ -18,7 +18,8 @@ def load_public_key(path) -> EllipticCurvePublicKey:
 WORKING_DIR = os.environ["WORKING_DIR"]
 ENCODING = "UTF-8"
 JWT_ALGORITHM = "HS256"
-TOKEN_LIFETIME_MINUTES = 5
+TOKEN_LIFETIME_SECONDS = 0.5 * 60
+KEYPAIR_LIFETIME_SECONDS = 1 * 60
 REGISTRY_URL = os.environ["REGISTRY_URL"]
 PRIVATE_KEY = load_private_key(os.environ["PRIVATE_KEY_FILE_PATH"], os.environ.get("PRIVATE_KEY_PASSWORD"))
 PUBLIC_KEY = load_public_key(os.environ["PUBLIC_KEY_FILE_PATH"])

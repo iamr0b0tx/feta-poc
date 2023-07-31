@@ -1,0 +1,13 @@
+# testing
+pytest==7.3.1
+pytest-cov==4.1.0
+
+# web requirements
+fastapi>=0.94.0
+uvicorn[standard]>=0.21.0
+
+pydantic~=1.10.8
+requests~=2.31.0
+
+PyJWT==2.7.0
+cryptography==41.0.1

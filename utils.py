@@ -21,9 +21,11 @@ def generate_key_pair(working_dir):
         ))
 
 
-def create_peer1():
+def main():
+    # create feta key pair
     generate_key_pair("feta/dump/peer1/")
-
-
-def create_peer2():
     generate_key_pair("feta/dump/peer2/")
+
+    # create social key pair
+    generate_key_pair("social/dump/peer1/")
+    generate_key_pair("social/dump/peer2/")

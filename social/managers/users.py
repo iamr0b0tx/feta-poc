@@ -1,6 +1,8 @@
-from pydantic import BaseModel, ValidationError
+import json
 
-from contributor import Contributor, PrincipalNotFound
+from pydantic import BaseModel
+
+from feta_client import FetaClient
 
 
 class User(BaseModel):
@@ -14,29 +16,36 @@ class UserNotFound(Exception):
         super().__init__(message)
 
 
-class UserManager:
-    def __init__(self, contributor: Contributor):
-        self.__contributor = contributor
-        self.__blocks = self.__contributor.blocks
+class ProfileNotFound(Exception):
+    def __init__(self, *, principal=None, message="Profile not found"):
+        if principal:
+            message = f"'{principal}' profile not found"
+        super().__init__(message)
 
-    def sign_up(self, username):
+
+class UserManager:
+    def __init__(self, feta_client: FetaClient):
+        self.__feta_client = feta_client
+        self.__principal = feta_client.principal
+
+    def sign_up(self, data):
         # TODO: check if username unique
-        user = User(username=username)
-        metadata = self.__contributor.update_metadata(user.dict())
-        return User(**metadata)
+        user = User(username=data.username)
+        self.__feta_client.add(user.json(), {self.__principal})
+        return user
 
     def get_user_profile(self, principal: str):
-        try:
-            metadata = self.__contributor.get_metadata(principal)
-            return User(**metadata)
-        except (PrincipalNotFound, ValidationError):
+        results = self.__feta_client.get({principal})
+
+        if not results:
             raise UserNotFound(principal=principal)
+
+        return User(**json.loads(results[0]))
 
     def get_profile(self):
-        principal = self.__contributor.principal.id
+        results = self.__feta_client.get({self.__principal})
 
-        try:
-            metadata = self.__contributor.get_metadata(principal)
-            return User(**metadata)
-        except (PrincipalNotFound, ValidationError) as e:
-            raise UserNotFound(principal=principal)
+        if not results:
+            raise ProfileNotFound(principal=self.__principal)
+
+        return User(**json.loads(results[0]))

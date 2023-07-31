@@ -11,7 +11,7 @@ from cryptography.hazmat.primitives.asymmetric import ec
 from cryptography.hazmat.primitives.asymmetric.ec import EllipticCurvePublicKey, EllipticCurvePrivateKey
 from cryptography.hazmat.primitives.kdf.hkdf import HKDF
 
-JWT_ALGORITHM = "HS256"
+from constants import JWT_ALGORITHM
 
 
 def generate_token(key, principal, algo=JWT_ALGORITHM):
@@ -92,4 +92,3 @@ def get_derived_key(peer_public_key, private_key):
 
 def make_request_id():
     return secrets.token_hex(8)
-

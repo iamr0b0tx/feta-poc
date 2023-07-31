@@ -12,7 +12,7 @@ from cryptography.hazmat.primitives.asymmetric.ec import EllipticCurvePublicKey,
 from cryptography.hazmat.primitives.kdf.hkdf import HKDF
 from pydantic import BaseModel
 
-from constants import JWT_ALGORITHM, ENCODING
+from constants import JWT_ALGORITHM, ENCODING, TOKEN_LIFETIME_SECONDS
 from exceptions import NoAvailableHost, AuthenticationError
 
 # create logger
@@ -93,8 +93,8 @@ def public_key_to_principal(public_key: bytes) -> str:
     return b64encode(public_key).decode(ENCODING)
 
 
-def principal_to_public_key(principal: str) -> str:
-    return b64decode(principal).decode(ENCODING)
+def principal_to_public_key(principal: str) -> bytes:
+    return b64decode(principal)
 
 
 def create_config(config, path):
@@ -139,7 +139,7 @@ def generate_token(key, principal, algo=JWT_ALGORITHM):
         {
             "principal": principal,
             "iat": now,
-            "exp": now + timedelta(minutes=TOKEN_LIFETIME_MINUTES)
+            "exp": now + timedelta(seconds=TOKEN_LIFETIME_SECONDS)
         },
         key,
         algorithm=algo

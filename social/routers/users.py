@@ -1,28 +1,25 @@
-from fastapi import Depends, HTTPException
+from fastapi import Depends, HTTPException, APIRouter
+from pydantic import BaseModel
 
-from router import make_router
-from social.constants import PRINCIPAL, PRINCIPAL_NAME
-from social.dependencies import get_user_manager
-from social.managers.users import UserManager, UserNotFound
+from constants import APP_NAME
+from dependencies import get_user_manager
+from managers.users import UserManager, UserNotFound
 
-router = make_router(PRINCIPAL, PRINCIPAL_NAME, "users")
-
-
-@router.post("/sign-up")
-async def sign_up(username: str, user_manager: UserManager = Depends(get_user_manager)):
-    return user_manager.sign_up(username)
-
-
-@router.get("/profile")
-async def get_profile(user_manager: UserManager = Depends(get_user_manager)):
-    try:
-        return user_manager.get_profile()
-    except UserNotFound as e:
-        raise HTTPException(status_code=404, detail=str(e))
+router = APIRouter(
+    prefix=f"/{APP_NAME}/users",
+    tags=[f"{APP_NAME} / users"],
+    responses={404: {"detail": "Not found"}}
+)
 
 
-@router.get("/profile/{principal}")
-async def get_user_profile(principal: str, user_manager: UserManager = Depends(get_user_manager)):
+class UpdateProfileRequestBody(BaseModel):
+    username: str
+
+
+
+
+@router.get("/{principal}/")
+async def get_user(principal: str, user_manager: UserManager = Depends(get_user_manager)):
     try:
         return user_manager.get_user_profile(principal)
     except UserNotFound as e:

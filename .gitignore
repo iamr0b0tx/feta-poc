@@ -165,4 +165,5 @@ output
 *.pickle
 
 # custom
-feta/dump
+*public
+*private

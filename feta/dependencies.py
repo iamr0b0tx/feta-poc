@@ -1,12 +1,13 @@
 import logging
 
-from fastapi import HTTPException, Depends
+import jwt
+from fastapi import HTTPException, Header
 
 from constants import PUBLIC_KEY, PRIVATE_KEY, REGISTRY_URL
 from exceptions import NoAvailableHost, AuthenticationError
 from key_pair import KeyPair
 from storage import make_storage
-from utils import authenticate
+from utils import authenticate, decode_token
 
 logger = logging.getLogger(__name__)
 logging.basicConfig()
@@ -46,3 +47,29 @@ async def get_host_and_token():
             raise HTTPException(status_code=404, detail="could not authenticate")
 
     return _host_token
+
+
+async def get_authenticated_principal(authorization: str = Header(...)):
+    if authorization:
+        if not authorization.startswith("Bearer"):
+            raise HTTPException(status_code=403, detail="Invalid authentication scheme.")
+
+        key_pair = await get_signing_key_pair()
+        principal = await verify_jwt(key_pair, authorization.split()[1])
+
+        if not principal:
+            raise HTTPException(status_code=403, detail="Invalid token or expired token.")
+
+        return principal
+
+    else:
+        raise HTTPException(status_code=403, detail="Invalid authorization code.")
+
+
+async def verify_jwt(keypair: KeyPair, token: str) -> bool:
+    try:
+        payload = decode_token(token, keypair.get_private_key_hash())
+        return payload["principal"]
+
+    except jwt.exceptions.DecodeError as e:
+        logger.debug(str(e))

@@ -1,11 +1,14 @@
-from fastapi import Depends
+from fastapi import Depends, APIRouter
 
-from router import make_router
-from social.constants import PRINCIPAL, PRINCIPAL_NAME
-from social.dependencies import get_post_manager
-from social.managers.posts import PostManager
+from constants import APP_NAME
+from dependencies import get_post_manager
+from managers.posts import PostManager
 
-router = make_router(PRINCIPAL, PRINCIPAL_NAME, "posts")
+router = APIRouter(
+    prefix=f"/{APP_NAME}/posts",
+    tags=[f"{APP_NAME} / posts"],
+    responses={404: {"detail": "Not found"}}
+)
 
 
 @router.get("/{post_id}")

@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 
 from router import router as main_router
-from social.routers import router as social_router
+from routers import router as social_router
 
 app = FastAPI(title="Main")
 app.include_router(main_router)
